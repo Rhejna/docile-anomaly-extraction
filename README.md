@@ -1,6 +1,6 @@
 # Document Extraction & Anomaly Detection
 
-A more complete and modern reproduction of a project I worked on in a company, focused on information extraction from banking documents and anomaly detection.
+An end-to-end pipeline for key information extraction from business documents (invoices, receipts, forms) with a downstream anomaly detection layer, benchmarked on DocILE and SROIE.
 
 The goal is to build a pipeline that extracts structured information from documents (invoices, receipts, forms) and detects anomalies on the extracted data.
 
