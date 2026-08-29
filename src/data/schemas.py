@@ -10,4 +10,11 @@ class Receipt:
     date: Optional[str]
     address: Optional[str]
     total: Optional[str]
-    
+
+
+@dataclass
+class OCRResult:
+    """Class that returns the text extracted from an image + the time taken."""
+    id: str
+    image_txt: str
+    time: float

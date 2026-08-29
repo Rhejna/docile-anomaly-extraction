@@ -54,9 +54,9 @@ def load_receipts(folder_path: str) -> list:
         else:
            files_ignored.append(jpg_name)
 
-    print(f"Charged : {len(receipt_list)}")
-    print(f"Duplicates discarded : {duplicates_discarded}")
-    print(f"Excluded (imprévus) : {len(files_ignored)}")
+    # print(f"Charged : {len(receipt_list)}")
+    # print(f"Duplicates discarded : {duplicates_discarded}")
+    # print(f"Excluded (imprévus) : {len(files_ignored)}")
 
     # if files_ignored:
     #     print("Files excluded :")

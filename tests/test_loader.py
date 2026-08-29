@@ -4,7 +4,7 @@ from src.data.loader import load_receipts
 TRAIN_FOLDER = "data/raw/sroie/task2train"
 
 
-def test_count_approximately_626():
+def test_count_is_exactly_626():
     """1. The loader must load approximately 626 documents.
     Windows duplicates (name(1), name(2)... ) are filtered out by the loader."""
     receipts = load_receipts(TRAIN_FOLDER)
