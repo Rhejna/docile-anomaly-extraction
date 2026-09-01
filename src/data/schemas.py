@@ -18,3 +18,12 @@ class OCRResult:
     id: str
     image_txt: str
     time: float
+
+
+@dataclass
+class ExtractedFields:
+    """Class to save prediction"""
+    company: Optional[str]
+    date: Optional[str]
+    address: Optional[str]
+    total: Optional[str]
