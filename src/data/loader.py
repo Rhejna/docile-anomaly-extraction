@@ -64,3 +64,25 @@ def load_receipts(folder_path: str) -> list:
     #         print(" ", f)
 
     return receipt_list
+
+
+def load_receipt(folder_path: str, receipt_id: str) -> Receipt | None:
+    """Load a single receipt by its id (without scanning the whole folder)."""
+    txt_path = os.path.join(folder_path, f"{receipt_id}.txt")
+    jpg_path = os.path.join(folder_path, f"{receipt_id}.jpg")
+
+    # Both files must exist
+    if not (os.path.isfile(txt_path) and os.path.isfile(jpg_path)):
+        return None
+
+    with open(txt_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    return Receipt(
+        id=receipt_id,
+        image_path=jpg_path,
+        company=data.get("company"),
+        date=data.get("date"),
+        address=data.get("address"),
+        total=data.get("total"),
+    )
