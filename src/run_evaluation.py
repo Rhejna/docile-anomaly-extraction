@@ -6,7 +6,7 @@ from pathlib import Path
 from src.data.schemas import ExtractedFields
 from src.data.loader import load_receipts
 from src.eval.metrics import compare_one, compute_scores
-from src.ocr.extraction import extract_company, extract_date, extract_address, extract_total
+from src.extract.extraction import extract_company, extract_date, extract_address, extract_total
 from src.ocr.ocr import get_text_from_img
 
 

@@ -1,16 +1,5 @@
+from src.text_utils import normalize
 from src.data.schemas import Receipt, ExtractedFields
-
-
-def normalize(value: str | None) -> str | None:
-    """Light normalization before comparison.
-    - None stays None
-    - Extra spaces are removed
-    - Case is ignored
-    """
-    if value is None:
-        return None
-    return " ".join(value.split()).lower()
-
 
 def is_correct(truth: str | None, pred: str | None) -> bool:
     """Return True if the prediction matches the ground truth after normalization.
