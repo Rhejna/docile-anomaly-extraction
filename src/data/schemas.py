@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional
 
 @dataclass
 class Receipt:
@@ -32,5 +32,5 @@ class ExtractedFields:
 @dataclass
 class LabeledSegment:
     text: str
-    position: Tuple[int, int, int, int]
+    position: tuple[int, int, int, int]
     label: str

@@ -137,6 +137,11 @@ def label_segments(segments: list, receipt: Receipt) -> tuple[list[LabeledSegmen
 
     return labeled_segments, windows, ambiguous
 
+def segments_to_words(labeledSegment: list[LabeledSegment])  -> list[LabeledSegment]:
+    pass
+
+
+
 if __name__ == "__main__":
     from collections import defaultdict
 
