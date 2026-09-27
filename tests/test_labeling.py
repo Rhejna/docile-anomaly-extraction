@@ -1,9 +1,10 @@
 from pathlib import Path
 import pytest
 
+from src.data.schemas import LabeledSegment
 from src.text_utils import compact
 from src.data.loader import load_receipt, load_receipts
-from src.data.labeling import read_segments, label_segments
+from src.data.labeling import read_segments, label_segments, segments_to_words
 
 
 # ---------------------------------------------------------------------------
@@ -121,3 +122,57 @@ def test_bio_sequence_validity_all_receipts():
         f"Found {len(invalid_sequences)} BIO sequence violation(s):\n"
         + "\n".join(invalid_sequences)
     )
+
+
+# ---------------------------------------------------------------------------
+# 5. Tests for segments_to_words
+# ---------------------------------------------------------------------------
+def test_segments_to_words_rules_and_positions():
+    """
+    Verify transformation of line segments into individual word segments:
+    - Correct word splitting per segment.
+    - Application of BIO labeling rules (B-X becomes I-X for subsequent words).
+    - Inheritance of original segment bounding box (position).
+    """
+    # 1. Prepare mock input of 3 LabeledSegments
+    pos1 = (10, 20, 100, 40)
+    pos2 = (10, 45, 100, 60)
+    pos3 = (10, 65, 50, 80)
+
+    input_segments = [
+        LabeledSegment(text="TAN WOON YANN", position=pos1, label="B-COMPANY"),
+        LabeledSegment(text="SDN BHD", position=pos2, label="I-COMPANY"),
+        LabeledSegment(text="TOTAL", position=pos3, label="O"),
+    ]
+
+    # 2. Run segment-to-words transformation
+    word_segments = segments_to_words(input_segments)
+
+    # 3. Assertions
+    # Must yield exactly 6 word segments (3 + 2 + 1)
+    assert len(word_segments) == 6
+
+    # Verify labels sequence
+    expected_labels = [
+        "B-COMPANY",
+        "I-COMPANY",
+        "I-COMPANY",
+        "I-COMPANY",
+        "I-COMPANY",
+        "O",
+    ]
+    actual_labels = [w.label for w in word_segments]
+    assert actual_labels == expected_labels
+
+    # Verify word texts
+    expected_texts = ["TAN", "WOON", "YANN", "SDN", "BHD", "TOTAL"]
+    actual_texts = [w.text for w in word_segments]
+    assert actual_texts == expected_texts
+
+    # Verify position inheritance
+    expected_positions = [pos1, pos1, pos1, pos2, pos2, pos3]
+    actual_positions = [w.position for w in word_segments]
+    assert actual_positions == expected_positions
+
+
+# python -m pytest tests/test_labeling.py -v

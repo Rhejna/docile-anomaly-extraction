@@ -137,64 +137,81 @@ def label_segments(segments: list, receipt: Receipt) -> tuple[list[LabeledSegmen
 
     return labeled_segments, windows, ambiguous
 
-def segments_to_words(labeledSegment: list[LabeledSegment])  -> list[LabeledSegment]:
-    pass
+def segments_to_words(labeledSegments: list[LabeledSegment])  -> list[LabeledSegment]:
+    labeled_words = []
+    for seg in labeledSegments:
+        text = seg.text.split()
+        position = seg.position
+        label = seg.label
 
+        if not text: 
+            continue
 
+        if label.startswith("B-"):
+            labeled_words.append(LabeledSegment(text[0], position, label))
+            labeled_words.extend([LabeledSegment(x, position, label.replace("B-", "I-")) for x in text[1:]])
+            continue
+
+        labeled_words.extend([LabeledSegment(x, position, label) for x in text])
+
+    return labeled_words
 
 if __name__ == "__main__":
     from collections import defaultdict
 
     # --- Test on 1 file ---
-    # file_path = "data/raw/sroie/task1train/X00016469619.txt"
-    # segments = read_segments(file_path)
-    # receipt = load_receipt("data/ocr_test_data", "X00016469619")
-    # label_segments(segments, receipt)
+    file_path = "data/raw/sroie/task1train/X00016469619.txt"
+    segments = read_segments(file_path)
+    receipt = load_receipt("data/ocr_test_data", "X00016469619")
+    labeled_results, windows, ambiguous = label_segments(segments, receipt)
+    segments_to_words(label_segments(segments, receipt))
+    
+    # print()
 
     # --- Run on a folder ---
     # receipts = load_receipts("data/ocr_test_data")
-    receipts = load_receipts("data/raw/sroie/task2train")
+    # # receipts = load_receipts("data/raw/sroie/task2train")
 
-    annotation_folder = Path("data/raw/sroie/task1train")
+    # annotation_folder = Path("data/raw/sroie/task1train")
 
-    total_files = 0
-    none_count = defaultdict(int)
-    ambiguous_count = defaultdict(int)
-    missing_annotation = 0
+    # total_files = 0
+    # none_count = defaultdict(int)
+    # ambiguous_count = defaultdict(int)
+    # missing_annotation = 0
 
-    for receipt in receipts:
-        receipt_id = receipt.id
-        annotation_path = annotation_folder / f"{receipt_id}.txt"
+    # for receipt in receipts:
+    #     receipt_id = receipt.id
+    #     annotation_path = annotation_folder / f"{receipt_id}.txt"
 
-        if not annotation_path.exists():
-            missing_annotation += 1
-            continue
+    #     if not annotation_path.exists():
+    #         missing_annotation += 1
+    #         continue
 
-        segments = read_segments(str(annotation_path))
+    #     segments = read_segments(str(annotation_path))
 
-        try:
-            labeled_results, windows, ambiguous = label_segments(segments, receipt)
-            total_files += 1
+    #     try:
+    #         labeled_results, windows, ambiguous = label_segments(segments, receipt)
+    #         total_files += 1
 
-            # Agrégation
-            for field in ["company", "date", "address", "total"]:
-                if windows[field] is None:
-                    none_count[field] += 1
-                ambiguous_count[field] += ambiguous[field]
+    #         # Agrégation
+    #         for field in ["company", "date", "address", "total"]:
+    #             if windows[field] is None:
+    #                 none_count[field] += 1
+    #             ambiguous_count[field] += ambiguous[field]
 
-        except Exception as e:
-            print(f"Error processing {receipt_id}: {e}")
+    #     except Exception as e:
+    #         print(f"Error processing {receipt_id}: {e}")
 
-    # --- Résumé final ---
-    print("\n" + "="*60)
-    print(f"Processed {total_files} files")
-    print(f"Missing annotation files: {missing_annotation}")
-    print("-"*60)
-    print(f"{'Field':<12} {'None (not found)':<20} {'Total Ambiguous'}")
-    print("-"*60)
-    for field in ["company", "date", "address", "total"]:
-        print(f"{field:<12} {none_count[field]:<20} {ambiguous_count[field]}")
-    print("="*60)
+    # # --- Résumé final ---
+    # print("\n" + "="*60)
+    # print(f"Processed {total_files} files")
+    # print(f"Missing annotation files: {missing_annotation}")
+    # print("-"*60)
+    # print(f"{'Field':<12} {'None (not found)':<20} {'Total Ambiguous'}")
+    # print("-"*60)
+    # for field in ["company", "date", "address", "total"]:
+    #     print(f"{field:<12} {none_count[field]:<20} {ambiguous_count[field]}")
+    # print("="*60)
 
 
 
