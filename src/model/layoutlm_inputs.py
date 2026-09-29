@@ -6,6 +6,7 @@ from src.data.schemas import LabeledSegment
 from src.data.labels import label2id
 
 MODEL_NAME = "microsoft/layoutlmv3-base"
+MAX_LENGTH = 512
 
 def _clip_1000(val: int) -> int:
     """Helper function to constrain an integer value between 0 and 1000."""
@@ -30,7 +31,10 @@ def load_processor() -> LayoutLMv3Processor :
     return processor
 
 
-def encode_receipt(processor: LayoutLMv3Processor, img_path: str, segments: list[LabeledSegment]) -> BatchEncoding :
+def encode_receipt(
+    processor: LayoutLMv3Processor, img_path: str, 
+    segments: list[LabeledSegment], truncation: bool = False,
+    padding: bool | str = False, max_length: int = 512) -> BatchEncoding :
     with Image.open(img_path) as im:
         image = im.convert("RGB")
         size = image.size
@@ -38,7 +42,9 @@ def encode_receipt(processor: LayoutLMv3Processor, img_path: str, segments: list
         boxes_list = [normalize_box(seg.position, size[0], size[1]) for seg in segments]
         labels_list = [label2id[seg.label] for seg in segments]
 
-    return processor(images=image, text=text_list, boxes=boxes_list, word_labels=labels_list, return_tensors="pt")
+    return processor(images=image, text=text_list, 
+                     boxes=boxes_list, word_labels=labels_list, return_tensors="pt", 
+                     truncation=truncation, padding=padding, max_length=max_length)
 
 
 # To run
