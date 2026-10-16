@@ -3,9 +3,8 @@ from transformers import LayoutLMv3Processor
 from torch.utils.data import Dataset
 
 from src.data.labeling import label_segments, read_segments, segments_to_words
-from src.data.loader import load_receipts
 from src.data.schemas import Receipt
-from src.model.layoutlm_inputs import encode_receipt, load_processor
+from src.model.layoutlm_inputs import encode_receipt
 
 
 class SROIEDataset(Dataset):
