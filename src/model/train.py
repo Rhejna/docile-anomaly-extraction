@@ -3,7 +3,10 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader
 from transformers import LayoutLMv3ForTokenClassification
 
-def train_one_epoch(model: LayoutLMv3ForTokenClassification, train_dataloader: DataLoader, optimizer: AdamW, device: torch.device) -> float:
+from src.model.checkpoint import save_checkpoint
+
+def train_one_epoch(model: LayoutLMv3ForTokenClassification, train_dataloader: DataLoader, 
+                    optimizer: AdamW, device: torch.device) -> float:
     """
     Input: the model, a DataLoader (the training one), the optimiser, the device.
     Output: the average loss over the entire epoch (a single number), useful for tracking progress from one epoch to the next.
@@ -38,3 +41,24 @@ def evaluate_loss(model: LayoutLMv3ForTokenClassification, val_dataloader: DataL
             cumul += outputs.loss.item()
 
     return cumul/len(val_dataloader)
+
+
+def train(model: LayoutLMv3ForTokenClassification, train_loader: DataLoader, val_loader: DataLoader, 
+          optimizer: AdamW, device: torch.device, epochs: int, checkpoint_dir: str
+    ) -> list[dict]:
+
+    hist = []
+    best_loss = float('inf')
+
+    for i in range(epochs):
+        train_loss = train_one_epoch(model, train_loader, optimizer, device)
+        val_loss = evaluate_loss(model, val_loader, device)
+
+        entry = {"epoch": i, "train_loss": train_loss, "val_loss": val_loss}
+        hist.append(entry)
+
+        if val_loss < best_loss:
+            best_loss = val_loss
+            save_checkpoint(model, checkpoint_dir)
+
+    return hist
