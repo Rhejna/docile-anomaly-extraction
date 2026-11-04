@@ -79,10 +79,11 @@ def evaluate_fields(
     raw_scores = compute_scores(raw_comparison_results)
     cleaned_scores = compute_scores(cleaned_comparison_results)
 
-    # Return both metrics dicts for side-by-side analysis
+    # Return both metrics dicts and detailed results for JSON logging
     return {
         "raw": raw_scores,
-        "cleaned": cleaned_scores
+        "cleaned": cleaned_scores,
+        "detailed": cleaned_comparison_results  # or raw/cleaned details as needed
     }
 
 
