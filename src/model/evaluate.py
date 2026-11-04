@@ -1,12 +1,15 @@
 import torch
 from transformers import LayoutLMv3ForTokenClassification, LayoutLMv3Processor
+import argparse
 
 from src.data.labeling import label_segments, read_segments, segments_to_words
+from src.data.loader import load_receipts
 from src.data.schemas import ExtractedFields, Receipt
-from src.eval.metrics import compare_one, compute_scores
-from src.model.checkpoint import load_checkpoint, save_checkpoint
+from src.eval.metrics import compare_one, compute_scores, save_evaluation_results # Function shared with run_evaluation.py
+from src.model.checkpoint import load_checkpoint
 from src.model.decode import decode_predictions
-from src.model.layoutlm_inputs import encode_receipt
+from src.model.dataset import split_receipts
+from src.model.layoutlm_inputs import encode_receipt, load_processor
 from src.normalize.postprocess import clean_prediction  # Import your postprocessing function
 
 
@@ -84,13 +87,6 @@ def evaluate_fields(
 
 
 if __name__ == "__main__":
-    import argparse
-    from src.data.loader import load_receipts
-    from src.model.dataset import split_receipts
-    from src.model.layoutlm_inputs import load_processor
-    from src.model.model import load_checkpoint
-    from src.eval.metrics import save_evaluation_results  # Function shared with run_evaluation.py
-
     parser = argparse.ArgumentParser(description="Evaluate LayoutLMv3 SROIE model.")
     parser.add_argument(
         "--checkpoint",
