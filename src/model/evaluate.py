@@ -91,7 +91,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--checkpoint",
         type=str,
-        default="data/checkpoints/test_checkpoint",
+        default="data/checkpoints/best_model",
         help="Path to the model checkpoint directory.",
     )
     args = parser.parse_args()
