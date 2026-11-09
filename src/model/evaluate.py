@@ -88,7 +88,7 @@ if __name__ == "__main__":
     from src.data.loader import load_receipts
     from src.model.dataset import split_receipts
     from src.model.layoutlm_inputs import load_processor
-    from src.model.model import load_checkpoint
+    from src.model.checkpoint import load_checkpoint
     from src.eval.metrics import save_evaluation_results  # Function shared with run_evaluation.py
 
     parser = argparse.ArgumentParser(description="Evaluate LayoutLMv3 SROIE model.")
