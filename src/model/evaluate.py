@@ -1,15 +1,11 @@
 import torch
 from transformers import LayoutLMv3ForTokenClassification, LayoutLMv3Processor
-import argparse
 
 from src.data.labeling import label_segments, read_segments, segments_to_words
-from src.data.loader import load_receipts
 from src.data.schemas import ExtractedFields, Receipt
-from src.eval.metrics import compare_one, compute_scores, save_evaluation_results # Function shared with run_evaluation.py
-from src.model.checkpoint import load_checkpoint
+from src.eval.metrics import compare_one, compute_scores
 from src.model.decode import decode_predictions
-from src.model.dataset import split_receipts
-from src.model.layoutlm_inputs import encode_receipt, load_processor
+from src.model.layoutlm_inputs import encode_receipt
 from src.normalize.postprocess import clean_prediction  # Import your postprocessing function
 
 
@@ -83,11 +79,18 @@ def evaluate_fields(
     return {
         "raw": raw_scores,
         "cleaned": cleaned_scores,
-        "detailed": cleaned_comparison_results  # or raw/cleaned details as needed
+        "detailed": cleaned_comparison_results
     }
 
 
 if __name__ == "__main__":
+    import argparse
+    from src.data.loader import load_receipts
+    from src.model.dataset import split_receipts
+    from src.model.layoutlm_inputs import load_processor
+    from src.model.model import load_checkpoint
+    from src.eval.metrics import save_evaluation_results  # Function shared with run_evaluation.py
+
     parser = argparse.ArgumentParser(description="Evaluate LayoutLMv3 SROIE model.")
     parser.add_argument(
         "--checkpoint",
@@ -97,9 +100,12 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # 1. Load data and split receipts (get all validation samples)
+    # 1. Load data and split receipts to get the exact same validation subset
     receipts = load_receipts("data/raw/sroie/task2train")
     _, val_receipts = split_receipts(receipts)
+
+    # Cheap verification: print first 3 validation IDs to ensure consistency with training
+    print("First 3 validation receipt IDs (Evaluation):", [r.id for r in val_receipts[:3]])
 
     # 2. Load model from checkpoint and processor
     print(f"Loading checkpoint from {args.checkpoint}...")
@@ -107,11 +113,11 @@ if __name__ == "__main__":
     processor = load_processor()
     annotations_dir = "data/raw/sroie/task1train"
 
-    # 3. Run evaluation harness on ALL validation receipts
+    # 3. Run evaluation harness on validation receipts
     print(f"Running evaluation on all {len(val_receipts)} validation receipts...")
     results = evaluate_fields(
         model=model,
-        val_receipts=val_receipts,  # Evaluating all receipts, not just [:5]
+        val_receipts=val_receipts,
         processor=processor,
         annotation_folder_path=annotations_dir
     )

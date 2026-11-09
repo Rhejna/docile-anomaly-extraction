@@ -1,6 +1,7 @@
-from src.data.schemas import ExtractedFields
 from src.data.loader import load_receipts
+from src.data.schemas import ExtractedFields
 from src.eval.metrics import compare_one, compute_scores, save_evaluation_results
+from src.model.dataset import split_receipts
 from src.extract.extraction import extract_company, extract_date, extract_address, extract_total
 from src.ocr.ocr import get_text_from_img
 
@@ -9,12 +10,16 @@ def main():
     folder_path = "data/raw/sroie/task2train"
     method_name = "baseline_regex"
 
+    # 1. Load data and use split_receipts to evaluate strictly on the 63 validation receipts
     receipts = load_receipts(folder_path)
+    _, val_receipts = split_receipts(receipts)
+
+    print(f"Running baseline evaluation on {len(val_receipts)} validation receipts...")
 
     detailed_results = []   # Detailed predictions for the JSON output
     comparison_results = [] # Evaluation status for compute_scores
 
-    for receipt in receipts:
+    for receipt in val_receipts:
         ocr = get_text_from_img(receipt.image_path)
         company = extract_company(ocr.image_txt)
 
@@ -60,7 +65,7 @@ def main():
         method_name=method_name,
         detailed_results=detailed_results,
         scores=scores,
-        num_samples=len(receipts),
+        num_samples=len(val_receipts),
     )
 
 

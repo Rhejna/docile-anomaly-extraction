@@ -22,13 +22,13 @@ RESULTS_DIR = "data/results"
 
 
 def parse_args():
-    """Parse command-line arguments to optionally limit the dataset size."""
+    """Parse command-line arguments to optionally limit the training dataset size."""
     parser = argparse.ArgumentParser(description="Run LayoutLMv3 SROIE training pipeline.")
     parser.add_argument(
         "--limit",
         type=int,
         default=None,
-        help="Optional limit on the number of receipts to use (useful for local debugging).",
+        help="Optional limit on the number of training receipts to use (useful for local debugging).",
     )
     return parser.parse_args()
 
@@ -36,18 +36,23 @@ def parse_args():
 def main():
     args = parse_args()
 
-    print("--- 1. Loading data ---")
+    print("--- 1. Loading and splitting data ---")
     receipts = load_receipts("data/raw/sroie/task2train")
     
-    # Apply limit if specified (e.g., for local testing)
-    if args.limit:
-        receipts = receipts[:args.limit]
-        print(f"Dataset limited to {args.limit} receipts.")
-
+    # First, split all receipts to ensure a fixed, unbiased validation set
     train_receipts, val_receipts = split_receipts(receipts)
+    
+    # Apply limit only to the training subset if specified for local debugging
+    if args.limit:
+        train_receipts = train_receipts[:args.limit]
+        print(f"Training dataset limited to {args.limit} receipts for debugging.")
+
     annotations_dir = "data/raw/sroie/task1train"
 
     print(f"Train samples: {len(train_receipts)} | Val samples: {len(val_receipts)}")
+    
+    # Cheap verification: print first 3 validation IDs to ensure consistency
+    print("First 3 validation receipt IDs:", [r.id for r in val_receipts[:3]])
 
     print("--- 2. Initializing processor and datasets ---")
     processor = load_processor()
